@@ -35,7 +35,7 @@ else:
     """, unsafe_allow_html=True)
 
 # Title and subtitle
-st.title("CPM Data Support Dashboard")
+st.title("CPM Data Support Dashboard v0.1")
 st.text("Provided by Six Analytic - for any questions, please contact us at sixanalytic@iiss.org")
 st.text("Warning: Light mode is not working properly, please use dark mode for now")
 
