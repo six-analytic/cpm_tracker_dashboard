@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
 from pyairtable import Api
 import os
 from dotenv import load_dotenv
@@ -21,8 +20,12 @@ if theme:
             background-color: #111111;
             color: #FFFFFF;
         }
+        .stDataFrame {
+            color: #FFFFFF;
+        }
         </style>
     """, unsafe_allow_html=True)
+    text_color = "white"
 else:
     # Light mode
     st.markdown("""
@@ -31,14 +34,25 @@ else:
             background-color: #FFFFFF;
             color: #111111;
         }
+        .stDataFrame {
+            color: #111111;
+        }
+        div[data-testid="stText"] {
+            color: #111111;
+        }
         </style>
     """, unsafe_allow_html=True)
+    text_color = "black"
 
 # Title and subtitle
 st.title("CPM Data Support Dashboard v0.1")
-st.text("Provided by Six Analytic - for any questions, please contact us at sixanalytic@iiss.org")
-st.text("Warning: Light mode is not working properly, please use dark mode for now")
-
+col1, col2 = st.columns(2)
+with col1:
+    st.text("- Provided by Six Analytic - for any questions, please contact us at sixanalytic@iiss.org")
+    st.text("- You can use the AI Filter slider to see relevant entries. You can then follow the links, or use the download button to get the filtered dataset.")
+with col2:
+    st.text("- Known issue: Light mode is not working properly, please use dark mode for now")
+    st.text("- Known issue 2: The system currently generates duplicate entries for the same event, as they are reported by different sources. We are working on fixing this.")
 
 # Airtable configuration
 AIRTABLE_API_KEY = st.secrets["AIRTABLE_API_KEY"]
@@ -46,8 +60,7 @@ BASE_ID = st.secrets["AIRTABLE_BASE_ID"]
 TABLE_ID = st.secrets["AIRTABLE_TABLE_ID"]
 
 # Initialize Airtable client
-api = Api(AIRTABLE_API_KEY) # TODO: store this in safer place in production
-
+api = Api(AIRTABLE_API_KEY) 
 table = api.table(BASE_ID, TABLE_ID)
 
 # Function to fetch and process data
@@ -62,43 +75,43 @@ def get_airtable_data():
 try:
     df = get_airtable_data()
     
-    # Add title for the map
-    st.subheader("Map of State Sponsors")
-    
-    # Create world map using Plotly
-    fig = px.choropleth(
-        df,
-        locations='sponsor_actor',  # Column containing country names
-        locationmode='country names',  # Tells Plotly to expect country names
-        hover_name='op_name',  # Shows the title when hovering over a country
-        hover_data=['report_date', 'source_html'],  # Additional data to show in hover tooltip
-        color_discrete_sequence=['#1f77b4'],  # Single color for all countries with data
-        projection='natural earth'
-    )
-    
-    # Customize the map appearance
-    fig.update_geos(
-        showcoastlines=True,
-        coastlinecolor="Black",
-        showland=True,
-        landcolor="LightGray",
-        showframe=False
-    )
-    # Display the map
-    st.plotly_chart(fig, use_container_width=True)
+    # Ensure 'id' is the first column
+    if 'id' in df.columns:
+        # Reorder columns to put 'id' first
+        cols = ['id'] + [col for col in df.columns if col != 'id']
+        df = df[cols]
+        # Sort by id in descending order (newest first)
+        df = df.sort_values('id', ascending=False)
     
     # AI Filter toggle
     ai_filter = st.toggle('Activate AI Filter', value=False)
     
     # Filter data based on AI relevance if toggle is enabled
     if ai_filter:
-        filtered_df = df[df['relevance_ai'] == "1"] # TODO: change this to 1 and make sure this field is stored as a number
+        filtered_df = df[df['relevance_ai'] == "1"]
     else:
         filtered_df = df
     
-    # Display last 20 entries
+    # Display last 25 entries with selected columns only
     st.subheader("Latest 25 Entries")
-    st.dataframe(filtered_df.tail(25))
+    columns_to_display = [
+        'id',
+        'op_name',
+        'type',
+        'details_text',
+        'sponsor_actor',
+        'target_actor',
+        'source_html',
+        'time_recorded_unix'
+    ]
+    
+    # Ensure all requested columns exist in the DataFrame
+    display_cols = [col for col in columns_to_display if col in filtered_df.columns]
+    
+    st.dataframe(
+        filtered_df[display_cols].head(25),
+        hide_index=True
+    )
     
     # Download button
     if st.button('Download Data as CSV'):
