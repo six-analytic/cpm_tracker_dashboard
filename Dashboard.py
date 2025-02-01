@@ -13,28 +13,19 @@ st.set_page_config(page_title="CPM Data Support Dashboard v0.1", layout="wide")
 # Add theme toggle at the top
 theme = st.toggle('Dark Mode', value=True)
 if theme:
-    # Dark mode
     st.markdown("""
         <style>
         .stApp {
             background-color: #111111;
             color: #FFFFFF;
         }
-        .stDataFrame {
-            color: #FFFFFF;
-        }
         </style>
     """, unsafe_allow_html=True)
-    text_color = "white"
 else:
-    # Light mode
     st.markdown("""
         <style>
         .stApp {
             background-color: #FFFFFF;
-            color: #111111;
-        }
-        .stDataFrame {
             color: #111111;
         }
         div[data-testid="stText"] {
@@ -42,13 +33,12 @@ else:
         }
         </style>
     """, unsafe_allow_html=True)
-    text_color = "black"
 
 # Title and subtitle
 st.title("CPM Data Support Dashboard v0.1")
 col1, col2 = st.columns(2)
 with col1:
-    st.text("- Provided by Six Analytic - for any questions, please contact us at sixanalytic@iiss.org")
+    st.text("- Provided by Six Analytic - for any questions, or to suggest new data sources, please contact us at sixanalytic@iiss.org")
     st.text("- You can use the AI Filter slider to see relevant entries. You can then follow the links, or use the download button to get the filtered dataset.")
 with col2:
     st.text("- Known issue: Light mode is not working properly, please use dark mode for now")
