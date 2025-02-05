@@ -7,70 +7,6 @@ st.set_page_config(
     layout="wide"
 )
 
-# Add theme toggle at the top (keeping consistent with main page)
-theme = st.toggle('Dark Mode', value=True)
-if theme:
-    st.markdown("""
-        <style>
-        .stApp {
-            background-color: #111111;
-            color: #FFFFFF;
-        }
-        /* Data frame styling */
-        div[data-testid="stDataFrame"] table {
-            color: #FFFFFF;
-            background-color: #222222;
-        }
-        div[data-testid="stDataFrame"] th {
-            background-color: #333333;
-            color: #FFFFFF;
-        }
-        /* Download button styling */
-        .stDownloadButton button {
-            background-color: #333333;
-            color: #FFFFFF;
-            border-color: #444444;
-        }
-        .stDownloadButton button:hover {
-            background-color: #444444;
-            color: #FFFFFF;
-            border-color: #555555;
-        }
-        </style>
-    """, unsafe_allow_html=True)
-else:
-    st.markdown("""
-        <style>
-        .stApp {
-            background-color: #FFFFFF;
-            color: #111111;
-        }
-        div[data-testid="stText"] {
-            color: #111111;
-        }
-        /* Data frame styling */
-        div[data-testid="stDataFrame"] table {
-            color: #111111;
-            background-color: #FFFFFF;
-        }
-        div[data-testid="stDataFrame"] th {
-            background-color: #F0F0F0;
-            color: #111111;
-        }
-        /* Download button styling */
-        .stDownloadButton button {
-            background-color: #FFFFFF;
-            color: #111111;
-            border-color: #DDDDDD;
-        }
-        .stDownloadButton button:hover {
-            background-color: #F0F0F0;
-            color: #111111;
-            border-color: #CCCCCC;
-        }
-        </style>
-    """, unsafe_allow_html=True)
-
 st.title("Methodology")
 
 st.markdown("""
@@ -113,7 +49,7 @@ Last updated: 01/02/2025
 
 ## AI Filter (AI Agent 2)
 
-- The AI filter is another OpenAI  agent which reads the initial output, and populates the "AI Filter" column.
+- The AI filter is another OpenAI agent which reads the initial output, and populates the "AI Filter" column.
 - The filter is not perfect, and sometimes misclassifies events.
 - We are working on improving the filter, and will update the dashboard as we make progress.
 

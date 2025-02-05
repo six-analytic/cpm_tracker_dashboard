@@ -8,46 +8,28 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Configure the page
-st.set_page_config(page_title="CPM Data Support Dashboard v0.1", layout="wide")
-
-# Add theme toggle at the top
-theme = st.toggle('Dark Mode', value=True)
-if theme:
-    st.markdown("""
-        <style>
-        .stApp {
-            background-color: #111111;
-            color: #FFFFFF;
-        }
-        </style>
-    """, unsafe_allow_html=True)
-else:
-    st.markdown("""
-        <style>
-        .stApp {
-            background-color: #FFFFFF;
-            color: #111111;
-        }
-        div[data-testid="stText"] {
-            color: #111111;
-        }
-        </style>
-    """, unsafe_allow_html=True)
+st.set_page_config(page_title="CPM Data Support Dashboard v0.2", layout="wide")
 
 # Title and subtitle
-st.title("CPM Data Support Dashboard v0.1")
-col1, col2 = st.columns(2)
-with col1:
-    st.text("- Provided by Six Analytic - for any questions, or to suggest new data sources, please contact us at sixanalytic@iiss.org")
-    st.text("- You can use the AI Filter slider to see relevant entries. You can then follow the links, or use the download button to get the filtered dataset.")
-with col2:
-    st.text("- Known issue: Light mode is not working properly, please use dark mode for now")
-    st.text("- Known issue 2: The system currently generates duplicate entries for the same event, as they are reported by different sources. We are working on fixing this.")
+st.title("CPM Data Support Dashboard v0.2")
+
+st.markdown("""
+The tool captures the latest cyber operations from sources selected by the CPFC team and updates whenever new content is detected.
+
+This is the first step in automating the monitoring of key websites (largely specialised media, cyber threat intelligence organisations) the team has identified as a valuable source and filters select pieces of information that the team wants to capture as a first step in the data collection process. 
+For more information on the methodology, please refer to the Methodology page.
+
+You can use the **AI Filter slider** to see relevant items, or use the **download button** (located at the bottom of the page) to download the filtered dataset as a CSV file.
+Note that downloaded datasets have more columsn that are not shown on this page.
+""") 
+
+
+
 
 # Airtable configuration
 AIRTABLE_API_KEY = st.secrets["AIRTABLE_API_KEY"]
-BASE_ID = st.secrets["AIRTABLE_BASE_ID"]
-TABLE_ID = st.secrets["AIRTABLE_TABLE_ID"]
+BASE_ID = st.secrets["BASE_ID"]  # Ensure your secrets.toml uses this key if different
+TABLE_ID = st.secrets["TABLE_ID"]  # Ensure your secrets.toml uses this key if different
 
 # Initialize Airtable client
 api = Api(AIRTABLE_API_KEY) 
@@ -67,14 +49,13 @@ try:
     
     # Ensure 'id' is the first column
     if 'id' in df.columns:
-        # Reorder columns to put 'id' first
         cols = ['id'] + [col for col in df.columns if col != 'id']
         df = df[cols]
-        # Sort by id in descending order (newest first)
         df = df.sort_values('id', ascending=False)
     
     # AI Filter toggle
-    ai_filter = st.toggle('Activate AI Filter', value=False)
+    ai_filter = st.toggle('AI Filter', value=True)
+    st.markdown("The AI filter is enabled by default. You can deactivate it to see all the data being collected.")
     
     # Filter data based on AI relevance if toggle is enabled
     if ai_filter:
@@ -83,7 +64,7 @@ try:
         filtered_df = df
     
     # Display last 25 entries with selected columns only
-    st.subheader("Latest 25 Entries")
+    st.subheader("Latest 25 Entries in the Database")
     columns_to_display = [
         'id',
         'op_name',
@@ -105,10 +86,9 @@ try:
     
     # Download button
     if st.button('Download Data as CSV'):
-        # Convert DataFrame to CSV
         csv = filtered_df.to_csv(index=False)
         st.download_button(
-            label="Click to Download",
+            label="Ready - Click to Download",
             data=csv,
             file_name="cpm_newstracker_data.csv",
             mime="text/csv"
